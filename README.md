@@ -1,7 +1,7 @@
 # STS2_MOD_Master
 
 《Slay the Spire 2》新增单人角色 MOD 项目。
-当前已有中文工程文档和仓库外候选编辑器，尚无可编译的 MOD 工程或可游玩的角色。
+当前已有可编译的原生装载技术探针、独立离线入口及工程文档，尚无可游玩的角色。
 
 ## 文档入口
 
@@ -63,6 +63,38 @@ pwsh -NoProfile -File .\tools\Start-OfflineDev.ps1 -Launch
 不是宿主网络防火墙，不承诺阻止恶意 MOD 任意访问文件。
 **直接双击游戏 EXE 或绕过入口不受此保护。**
 运行验收与尚未覆盖项见本地开发边界和工程日志。
+
+## A-01：原生装载探针
+
+该探针只通过原生 `ModInitializerAttribute` 输出一次初始化标记，
+不注册模型、不改变玩法、不需要 PCK、Godot 编辑器或社区框架。
+它不是正式角色实现，`affects_gameplay=false`；原生加载器仍可能把测试档标记为 modded。
+
+在仓库根目录按阶段执行：
+
+```powershell
+pwsh -NoProfile -File .\tools\Build-LoaderProbe.ps1
+pwsh -NoProfile -File .\tools\Deploy-LoaderProbe.ps1
+pwsh -NoProfile -File .\tools\Start-OfflineDev.ps1 -LoaderProbe -Launch -ProbeSeconds 60
+pwsh -NoProfile -File .\tools\Deploy-LoaderProbe.ps1 -Remove
+```
+
+构建使用已安装且固定的 SDK `9.0.317`，不自动部署或运行。
+忽略的 `artifacts\loader-probe` 仅包含自身 DLL 和 Manifest；
+构建/部署凭据位于仓库外 `<workspace>\probe-state\loader-probe`。
+源码输入在编译前后必须一致，部署与启动都检查当前构建和精确哈希，
+不会将游戏目录里任意现有文件自动纳入信任。
+
+`-LoaderProbe` 固定使用独立 `loader-probe` slot，拒绝指定 `main`；
+首次仅在该新测试档创建原生 MOD 同意设置，已有禁用或异常设置不会被覆盖。
+运行输出应恰好出现一次：
+`STS2_MOD_MASTER_NATIVE_LOADER_PROBE/0.1.0 INITIALIZED count=1`。
+限时停止的退出码不是自然退出成功；日志保存在该 slot 的 `diagnostics` 下，不进入 Git。
+
+探针部署期间，普通无探针入口仍拒绝额外文件。
+`-Remove` 只删除部署凭据匹配的两份产物和自己的空目录，恢复原 220 文件基线，
+保留构建产物与测试档；不删除整个 `mods` 目录或修改其他 MOD。
+本批运行后已执行移除，默认离线入口恢复可用；后续复现需重新显式部署。
 
 ## 公开仓库规则
 

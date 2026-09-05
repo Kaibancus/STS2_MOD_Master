@@ -6,6 +6,7 @@
 /dev-data/
 /dev-launch/
 /offline-data/
+/probe-state/
 *.wsb
 data_sts2_*/
 steamapps/

@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>sts2modmaster_loader_probe</AssemblyName>
+    <RootNamespace>Sts2ModMaster.NativeLoaderProbe</RootNamespace>
+    <Version>0.1.0</Version>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <NuGetAudit>false</NuGetAudit>
+    <OutputPath>..\..\artifacts\loader-probe\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GameReferenceDirectory Condition="'$(GameReferenceDirectory)' == ''">$(MSBuildThisFileDirectory)..\..\..\game\data_sts2_windows_x86_64</GameReferenceDirectory>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="LoaderProbe.cs" />
+    <Reference Include="sts2">
+      <HintPath>$(GameReferenceDirectory)\sts2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+  <Target Name="CheckExternalGameReference" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(GameReferenceDirectory)\sts2.dll')" Text="The separately owned external game reference is missing. No game files are downloaded or copied by this project." />
+  </Target>
+</Project>

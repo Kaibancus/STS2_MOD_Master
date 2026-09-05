@@ -26,6 +26,7 @@ GodotSharp 版本 `4.5.1`，随附 Harmony `2.4.2`。
       <slot>\
   dev-data\     私有 Sandbox 探针数据，不是日常离线档
   dev-launch\   私有探针配置，不进入 Git
+  probe-state\  原生装载探针构建/部署凭据及专用 CLI 数据
 ```
 
 只有 `mod` 是 Git 根。Godot 的用户指定安装位置是工作区的 `Godot` 子目录，
@@ -103,6 +104,9 @@ MOD 专属设置/遥测、日志、运行缓存和 `remotecache.vdf`。
 
 宿主入口每次核对全部 220 个发行文件的路径、长度及内容指纹，拒绝新增/缺失/变更文件，
 包括 `override.cfg` 或额外 MOD；游戏升级不能绕过该检查。
+唯一显式例外是 `-LoaderProbe`：原 220 文件仍须完整匹配，仅在验证独立构建/部署凭据后，
+允许 `mods\sts2modmaster_loader_probe` 下固定的同名 DLL/JSON 两文件。
+没有通配排除或 unsafe 模式；未使用该开关时仍把两份探针产物当作额外文件拒绝。
 数据按版本和 slot 分开，已有根须有自身归属标记；路径重解析点、数据硬链接、
 运行时注入环境及并发游戏/入口均会阻断。预检不创建数据，也不启动进程。
 这些约束不防御启动时恶意宿主程序同时修改文件，也不为未来任意 MOD 提供 OS 沙箱保证。
@@ -122,8 +126,44 @@ MOD 专属设置/遥测、日志、运行缓存和 `remotecache.vdf`。
 
 “离线”在这里表示 **Steam 后端关闭且存档根独立**，不表示宿主整个进程被断网。
 Sentry 是独立机制；未增加防火墙规则或全局网络限制。
+入口也不控制另行运行的 Steam 客户端：A-01 批次观察到该客户端缓存评估刷新
+`remotecache.vdf` 的时间戳，但索引内容及所有受保护存档内容/文件集合不变。
+这一元数据例外单独记录，没有重设时间戳或恢复源文件以掩盖变化。
 直接运行 EXE、修改入口参数/源码、加入未核准 MOD 或共享未核准版本档位不在保证范围内。
 需要系统账户、权限或云设置变更的其他方案仍须另行确认。
+
+### A-01 构建、部署和同意设置
+
+项目为 `src\NativeLoaderProbe\NativeLoaderProbe.csproj`，使用 `Microsoft.NET.Sdk` / `net9.0`。
+`global.json` 固定 SDK `9.0.317` 且禁用滚动选择；没有 PackageReference，
+仓库 `NuGet.Config` 清空远端包源。唯一游戏引用是外部 `sts2.dll`，`Private=false`，
+构建不复制游戏引用，不执行部署或启动操作。
+
+应使用 `tools\Build-LoaderProbe.ps1`：子进程 CLI-home/NuGet 数据位于仓库外专用状态目录，
+禁用遥测、HTTPS 开发证书生成、首次运行体验和共享构建服务器。
+游戏引用目录显式传入已核对的副本路径。构建前捕获源码/项目/SDK 配置/构建脚本指纹，
+编译和打包后再次比对；改变时不签发新凭据，不把新源码配给旧产物。
+普通 `dotnet build` 只编译，并不签发启动所需凭据；它不能代替受控构建流程。
+
+显式部署使用 `tools\Deploy-LoaderProbe.ps1`，只暂存/移动已核对的两份自身文件，
+不覆盖现有目标，不读取玩家备份，不更改同意设置，也不启动游戏。
+构建、部署、移除和运行复用互斥锁。部署存在时必须先精确移除才能重新构建，
+不能通过重建把不明游戏目录内容“重新信任”。
+
+实际探针档为 `<workspace>\offline-data\v0.111.0-41cef1ea\loader-probe`。
+首次带 `-LoaderProbe -Launch` 时，入口仅为该新档创建
+`roaming\SlayTheSpire2\default\1\settings.save`：
+`schema_version=8`，`mod_settings.mods_enabled=true`，`mod_list=[]`。
+这是显式诊断开关对应的新测试档同意，不复制 `main` 设置。
+若已有设置撤销同意、schema 不匹配或包含其他 MOD，则停止而非覆盖。
+原生加载成功后，该测试档进入 `default\1\modded\profile1`；
+本次原生日志确认没有普通测试存档可复制，因此跳过首次 modded 数据复制。
+
+移除只作用于哈希匹配的自身 DLL/JSON、专用空 leaf 和部署凭据；
+篡改/缺失或未知内容会阻断，不通过删除整个目录恢复。
+仅可能保留空的 `mods` 父目录，不影响原 220 文件基线。
+原生调用结果、受保护源文件核对与有限的 headless 错误观察见本批工程日志；
+未将 A-02 至 A-07 或完整 G2 标为完成。
 
 ## 6. 发布前的双重边界
 

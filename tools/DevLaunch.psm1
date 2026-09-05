@@ -138,12 +138,15 @@ function Assert-GameBaseline {
 }
 
 function Get-GameFingerprint {
-    param([Parameter(Mandatory)][string]$GameRoot)
+    param([Parameter(Mandatory)][string]$GameRoot, [switch]$ExcludeLoaderProbe)
 
     $files = @(Get-PhysicalTree $GameRoot)
     $rows = [Collections.Generic.List[string]]::new()
     foreach ($file in $files) {
         $relative = $file.FullName.Substring($GameRoot.TrimEnd('\').Length + 1).ToLowerInvariant()
+        if ($ExcludeLoaderProbe -and $relative -in @(
+            'mods\sts2modmaster_loader_probe\sts2modmaster_loader_probe.dll',
+            'mods\sts2modmaster_loader_probe\sts2modmaster_loader_probe.json')) { continue }
         $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
         $rows.Add("$relative`t$($file.Length)`t$hash")
     }
@@ -154,7 +157,7 @@ function Get-GameFingerprint {
             [Text.Encoding]::UTF8.GetBytes(($rows -join "`n") + "`n"))).Replace('-', '')
     }
     finally { $hasher.Dispose() }
-    [pscustomobject]@{ FileCount = $files.Count; Sha256 = $digest }
+    [pscustomobject]@{ FileCount = $rows.Count; Sha256 = $digest }
 }
 
 function Assert-SandboxCapability {

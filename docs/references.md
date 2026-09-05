@@ -64,6 +64,7 @@
 | L06 | `sts2.xml:102340-102426, 102477-102676` 及 UserDataPathProvider 元数据 | 保存入口、分区与云风险；不证明开发隔离。 |
 | L07 | 本版本局部 IL：`CommandLineHelper` `0x06004D0C`、`NGame.InitializePlatform` 状态机 `0x0600B5A9`、`SaveManager.ConstructDefault` `0x06000732`、`NullPlatformUtilStrategy` `0x060010B4` | force-steam=off 的实际分支、云后端构造条件、默认离线 ID=1、存储及早期迁移路径。只公开结论，不公开 IL。 |
 | L08 | 实际 EXE 的 Windows config/data/user-dir getter RVA `0x00481730`、`0x004818B0`、`0x00482170` 与必要项目配置；受控存储实验 | vtable 连接与 APPDATA/custom_user_dir_name=SlayTheSpire2；以实际文件写入佐证，原始配置/反汇编/日志仅本地保存。 |
+| L09 | 本版本 `ModInitializerAttribute` `0x06004956`、`ModManager.CallModInitializer` `0x0600496F`、原生日志 XML；ModSettings/SettingsSave 序列化属性元数据 | 特性指定静态无参方法；`Log.Info(string,int)`；`mod_settings.mods_enabled/mod_list` 与设置 schema 8。A-01 以自身 DLL 的一次实际调用佐证，不发布游戏方法体。 |
 
 本次 `sts2.dll` SHA-256：
 `0861BFA1DF347538D932F22D580E75420F08082792EB914E53B4882764ACDBE9`。

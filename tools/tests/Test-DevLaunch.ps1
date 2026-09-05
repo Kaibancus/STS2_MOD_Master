@@ -136,6 +136,107 @@ try {
     }
     finally { $mutex.ReleaseMutex(); $mutex.Dispose() }
 
+    $tools = Split-Path -Parent $PSScriptRoot
+    Import-Module (Join-Path $tools 'LoaderProbe.psm1') -Force
+    $id = 'sts2modmaster_loader_probe'
+    foreach ($relative in @('global.json','NuGet.Config','src\NativeLoaderProbe\NativeLoaderProbe.csproj',
+        'src\NativeLoaderProbe\LoaderProbe.cs','tools\Build-LoaderProbe.ps1')) {
+        $path = Join-Path $repo $relative
+        $parent = Split-Path -Parent $path
+        if (-not (Test-Path -LiteralPath $parent)) { $null = New-Item -ItemType Directory -Path $parent }
+        [IO.File]::WriteAllText($path, 'own fixture input')
+    }
+    $manifestSource = Join-Path $repo "src\NativeLoaderProbe\$id.json"
+    Copy-Item -LiteralPath (Join-Path (Split-Path -Parent $tools) "src\NativeLoaderProbe\$id.json") -Destination $manifestSource
+    $probeLayout = Get-LoaderProbeLayout $repo
+    Initialize-LoaderProbeState $probeLayout
+    $null = New-Item -ItemType Directory -Path $probeLayout.Artifacts
+    $dll = Join-Path $probeLayout.Artifacts "$id.dll"
+    $manifest = Join-Path $probeLayout.Artifacts "$id.json"
+    [IO.File]::WriteAllText($dll, 'own receipt fixture, never executed')
+    Copy-Item -LiteralPath $manifestSource -Destination $manifest
+    $sourceFingerprint = Get-LoaderProbeSourceFingerprint $repo
+    $receipt = New-LoaderProbeReceipt -Layout $probeLayout -SourceFingerprint $sourceFingerprint
+    $receiptText = $receipt | ConvertTo-Json -Depth 5
+    Assert-Rejected { Read-LoaderProbeReceipt -Path $probeLayout.BuildReceipt -Layout $probeLayout -Kind build } 'Missing build'
+    [IO.File]::WriteAllText($probeLayout.BuildReceipt, $receiptText)
+    $verified = Assert-LoaderProbeBuild $probeLayout
+    Assert-True ($verified.artifacts.Count -eq 2) 'Reviewed build did not have exactly two artifacts.'
+    [IO.File]::AppendAllText($dll, 'tampered')
+    Assert-Rejected { Assert-LoaderProbeBuild $probeLayout } 'hash/length differs'
+    [IO.File]::WriteAllText($dll, 'own receipt fixture, never executed')
+    [IO.File]::WriteAllText((Join-Path $probeLayout.Artifacts 'unexpected.dll'), 'own rejected fixture')
+    Assert-Rejected { Assert-LoaderProbeBuild $probeLayout } 'exactly the own DLL'
+    Remove-Item -LiteralPath (Join-Path $probeLayout.Artifacts 'unexpected.dll')
+    $badManifest = Get-Content -LiteralPath $manifest -Raw | ConvertFrom-Json -AsHashtable
+    $badManifest.affects_gameplay = $true
+    [IO.File]::WriteAllText($manifest, ($badManifest | ConvertTo-Json))
+    Assert-Rejected { Assert-LoaderProbeBuild $probeLayout } 'non-gameplay loader probe'
+    Copy-Item -LiteralPath $manifestSource -Destination $manifest
+    Remove-Item -LiteralPath $dll
+    Assert-Rejected { Assert-LoaderProbeBuild $probeLayout } 'exactly the own DLL'
+    [IO.File]::WriteAllText($dll, 'own receipt fixture, never executed')
+    Remove-Item -LiteralPath $manifest
+    Assert-Rejected { Assert-LoaderProbeBuild $probeLayout } 'exactly the own DLL'
+    Copy-Item -LiteralPath $manifestSource -Destination $manifest
+    $sourceCode = Join-Path $repo 'src\NativeLoaderProbe\LoaderProbe.cs'
+    [IO.File]::AppendAllText($sourceCode, 'changed')
+    Assert-Rejected { Assert-LoaderProbeSourceUnchanged -RepositoryRoot $repo -ExpectedFingerprint $sourceFingerprint } 'changed during'
+    Assert-Rejected { Assert-LoaderProbeBuild $probeLayout } 'stale'
+    [IO.File]::WriteAllText($sourceCode, 'own fixture input')
+    $badReceipt = $receiptText | ConvertFrom-Json -AsHashtable
+    $badReceipt.game_root = 'C:\not-the-development-copy'
+    [IO.File]::WriteAllText($probeLayout.BuildReceipt, ($badReceipt | ConvertTo-Json -Depth 5))
+    Assert-Rejected { Assert-LoaderProbeBuild $probeLayout } 'Invalid build'
+    $badReceipt = $receiptText | ConvertFrom-Json -AsHashtable
+    $badReceipt.artifacts[0].name = '..\unapproved.dll'
+    [IO.File]::WriteAllText($probeLayout.BuildReceipt, ($badReceipt | ConvertTo-Json -Depth 5))
+    Assert-Rejected { Assert-LoaderProbeBuild $probeLayout } 'Invalid artifact allowlist'
+    [IO.File]::WriteAllText($probeLayout.BuildReceipt, $receiptText)
+    $null = New-Item -ItemType HardLink -Path (Join-Path $probeLayout.State 'receipt-link') -Target $probeLayout.BuildReceipt
+    Assert-Rejected { Assert-LoaderProbeBuild $probeLayout } 'hard links'
+    Remove-Item -LiteralPath (Join-Path $probeLayout.State 'receipt-link')
+    Assert-Rejected { Assert-LoaderProbeDeployment $probeLayout } 'Missing deployment'
+
+    $cleanFixture = Get-GameFingerprint $game
+    $null = New-Item -ItemType Directory -Path $probeLayout.Deployment
+    [IO.File]::Copy($dll, (Join-Path $probeLayout.Deployment "$id.dll"))
+    [IO.File]::Copy($manifest, (Join-Path $probeLayout.Deployment "$id.json"))
+    Assert-True ((Get-GameFingerprint -GameRoot $game -ExcludeLoaderProbe).Sha256 -ceq $cleanFixture.Sha256) 'Exact probe exclusion changed the underlying base.'
+    Assert-True ((Get-GameFingerprint $game).Sha256 -cne $cleanFixture.Sha256) 'Default profile started ignoring extra probe files.'
+    [IO.File]::WriteAllText((Join-Path $probeLayout.Deployment 'extra.dll'), 'own unapproved fixture')
+    Assert-True ((Get-GameFingerprint -GameRoot $game -ExcludeLoaderProbe).Sha256 -cne $cleanFixture.Sha256) 'Probe exclusion ignored an arbitrary extra DLL.'
+    Remove-Item -LiteralPath (Join-Path $probeLayout.Deployment 'extra.dll')
+    [IO.File]::AppendAllText((Join-Path $game 'own-fixture.txt'), 'base changed')
+    Assert-True ((Get-GameFingerprint -GameRoot $game -ExcludeLoaderProbe).Sha256 -cne $cleanFixture.Sha256) 'Probe profile ignored changed base contents.'
+    $deploymentReceipt = New-LoaderProbeReceipt -Layout $probeLayout -Kind deployment -SourceFingerprint $sourceFingerprint
+    [IO.File]::WriteAllText($probeLayout.DeploymentReceipt, ($deploymentReceipt | ConvertTo-Json -Depth 5))
+    [IO.File]::AppendAllText((Join-Path $probeLayout.Deployment "$id.dll"), 'tampered')
+    Assert-Rejected { Assert-LoaderProbeDeployment $probeLayout } 'hash/length differs'
+
+    $probeSlot = Get-OfflineLayout -RepositoryRoot $repo -Slot 'loader-probe'
+    Initialize-OfflineRoot $probeSlot
+    $mainMarker = Join-Path $offline.Profile 'main-owned.txt'
+    $null = New-Item -ItemType Directory -Path $offline.Profile
+    [IO.File]::WriteAllText($mainMarker, 'main must stay unchanged')
+    Assert-Rejected { Initialize-LoaderProbeConsent $offline } 'restricted'
+    Initialize-LoaderProbeConsent $probeSlot
+    $settingsPath = Join-Path $probeSlot.Profile 'roaming\SlayTheSpire2\default\1\settings.save'
+    $settings = Get-Content -LiteralPath $settingsPath -Raw | ConvertFrom-Json -AsHashtable
+    Assert-True ($settings.schema_version -eq 8 -and $settings.mod_settings.mods_enabled -eq $true) 'Fresh native consent schema is wrong.'
+    $consentHash = (Get-FileHash -LiteralPath $settingsPath).Hash
+    Initialize-LoaderProbeConsent $probeSlot
+    Assert-True ((Get-FileHash -LiteralPath $settingsPath).Hash -ceq $consentHash) 'Consent is overwritten on repeat launch.'
+    Assert-True ([IO.File]::ReadAllText($mainMarker) -ceq 'main must stay unchanged') 'Probe consent touched main.'
+    $settings.mod_settings.mods_enabled = $false
+    [IO.File]::WriteAllText($settingsPath, ($settings | ConvertTo-Json -Depth 5))
+    Assert-Rejected { Initialize-LoaderProbeConsent $probeSlot } 'will not be overwritten'
+    Assert-Rejected { & (Join-Path $tools 'Start-OfflineDev.ps1') -LoaderProbe -Slot main } 'dedicated'
+    Assert-Rejected { & (Join-Path $tools 'Start-OfflineDev.ps1') -Slot loader-probe } 'reserved'
+    $project = [xml][IO.File]::ReadAllText((Join-Path (Split-Path -Parent $tools) 'src\NativeLoaderProbe\NativeLoaderProbe.csproj'))
+    Assert-True ($project.SelectNodes('//Exec').Count -eq 0 -and $project.SelectNodes('//Copy').Count -eq 0) 'Ordinary build contains deployment/run operations.'
+    Assert-True ($project.Project.ItemGroup.Reference.Private -eq 'false') 'Game reference has CopyLocal enabled.'
+
     foreach ($file in Get-ChildItem -LiteralPath (Split-Path -Parent $PSScriptRoot) -Recurse -File -Include '*.ps1', '*.psm1') {
         $tokens = $null
         $parseErrors = $null

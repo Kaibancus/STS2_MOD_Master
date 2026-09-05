@@ -2,6 +2,7 @@
 [CmdletBinding()]
 param(
     [switch]$Launch,
+    [switch]$LoaderProbe,
     [ValidatePattern('^[a-z][a-z0-9-]{0,31}$')][string]$Slot = 'main',
     [ValidateRange(0, 120)][int]$ProbeSeconds = 0
 )
@@ -10,11 +11,22 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'DevLaunch.psm1') -Force
 $repository = Split-Path -Parent $PSScriptRoot
+if ($LoaderProbe) {
+    if ($PSBoundParameters.ContainsKey('Slot') -and $Slot -cne 'loader-probe') {
+        throw 'The explicit loader probe can only use its dedicated loader-probe slot.'
+    }
+    $Slot = 'loader-probe'
+    Import-Module (Join-Path $PSScriptRoot 'LoaderProbe.psm1') -Force
+}
+elseif ($Slot -ieq 'loader-probe') {
+    throw 'The loader-probe slot is reserved for the explicit -LoaderProbe workflow.'
+}
 $layout = Get-OfflineLayout -RepositoryRoot $repository -Slot $Slot
 Assert-OfflineEnvironment
 $start = New-OfflineStartInfo -GameRoot $layout.Game -ProfileRoot $layout.Profile -Headless:($ProbeSeconds -gt 0)
 if (-not $Launch) {
-    Assert-OfflineBaseline $layout.Game
+    if ($LoaderProbe) { Assert-LoaderProbeDeployment (Get-LoaderProbeLayout $repository) }
+    else { Assert-OfflineBaseline $layout.Game }
     [pscustomobject]@{
         Status = 'Preflight only; no files created or game started'
         Executable = $start.FileName
@@ -32,8 +44,10 @@ $started = $false
 try {
     $layout = Get-OfflineLayout -RepositoryRoot $repository -Slot $Slot
     Assert-OfflineEnvironment
-    Assert-OfflineBaseline $layout.Game
+    if ($LoaderProbe) { Assert-LoaderProbeDeployment (Get-LoaderProbeLayout $repository) }
+    else { Assert-OfflineBaseline $layout.Game }
     Initialize-OfflineRoot $layout
+    if ($LoaderProbe) { Initialize-LoaderProbeConsent $layout }
     if ($ProbeSeconds -gt 0) {
         $start.RedirectStandardOutput = $true
         $start.RedirectStandardError = $true

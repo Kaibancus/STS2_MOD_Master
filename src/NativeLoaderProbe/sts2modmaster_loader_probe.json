@@ -1,0 +1,12 @@
+{
+  "id": "sts2modmaster_loader_probe",
+  "name": "STS2 MOD Master Native Loader Probe",
+  "author": "Kaibancus",
+  "description": "Diagnostic native initializer only; no gameplay or model changes.",
+  "version": "0.1.0",
+  "has_pck": false,
+  "has_dll": true,
+  "dependencies": [],
+  "affects_gameplay": false,
+  "min_game_version": "0.111.0"
+}
