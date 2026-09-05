@@ -2,6 +2,7 @@
 # These rules are a second line of defense, not permission to copy them here.
 [Gg]ame/
 [Gg]ames/
+/Godot/
 data_sts2_*/
 steamapps/
 steam_appid.txt

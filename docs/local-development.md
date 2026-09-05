@@ -1,121 +1,88 @@
-# Local development boundary
+# 本地开发与数据边界
 
-## Initialization status and reference baseline
+## 1. 当前基线
 
-This is a documentation-only starter for a future character MOD. It has no C#
-project, compilable skeleton, character implementation, dependency setup, MOD
-framework, launcher, or verified game/MOD runtime integration. No build, game
-launch, SDK installation, or dependency installation is needed in this phase.
+参考游戏为 `v0.111.0`，目标框架 `net9.0`，
+GodotSharp 版本 `4.5.1`，随附 Harmony `2.4.2`。
+这些信息来自版本文件和静态程序集信息，不代表角色 MOD 已能运行。
 
-The reference game version is `v0.111.0`, with a managed runtime target of
-`net9.0`. These describe a compiled local game distribution, not original source
-or a supported MOD API. Future compatibility must be established separately.
+游戏是编译发行包，不是原始 C# 源码仓库。
+类型/接口分析优先使用 XML 和 PE/CLI 元数据；必要时仅在本地进行方法级参考分析。
+不得将游戏代码或提取资源提交到本仓库。
 
-Reference assembly names in that external distribution include:
-
-- `data_sts2_windows_x86_64\sts2.dll`
-- `data_sts2_windows_x86_64\GodotSharp.dll`
-- `data_sts2_windows_x86_64\0Harmony.dll`
-
-These files remain outside Git. This starter does not copy, link, redistribute,
-extract, or decompile them. A future integration approach requires separate
-implementation and validation; the presence of these assemblies proves neither
-compatibility nor permission to redistribute them.
-
-## Portable local directory conventions
-
-Choose a workspace location on your own machine:
+## 2. 目录布局
 
 ```text
 <workspace>\
   game\
   mod\
-    src\
-    assets\
-    docs\
   backup\
     normal-saves\
       <snapshot>\
+  Godot\
+    <pinned-editor-version>\
 ```
 
-`<workspace>`, `<snapshot>`, `<Steam>`, and `<account>` in this document are
-placeholders, not actual machine paths or account identifiers. `profileN` means
-an ordinary numbered profile directory, not a MOD profile.
+只有 `mod` 是 Git 根。Godot 的用户指定安装位置是工作区的 `Godot` 子目录，
+实际版本和安装状态记入工程日志。公开文档使用占位路径，不含个人主目录、
+实际账户 ID 或备份快照清单。
 
-The Git root is only `<workspace>\mod`. Keep your separately owned game
-installation or authorized local copy at `<workspace>\game`, and private
-backups at `<workspace>\backup`. Do not initialize Git at the workspace parent,
-move these private directories into the repository, or create links from the
-repository to game or backup content.
+游戏引用位于外部 `game\data_sts2_windows_x86_64`，例如
+`sts2.dll`、`GodotSharp.dll`、`0Harmony.dll`。
+未来编译与打包必须防止这些引用以 CopyLocal 等方式进入自身分发包。
 
-Future machine-specific paths and configuration must remain untracked.
-Do not commit absolute local paths, actual account-folder identifiers, or
-environment-specific setup files. `.gitignore` does not remove already tracked
-files and can be bypassed by force-adding, so it cannot replace this boundary
-or a review of staged content.
+编辑器和本机配置不修改系统 PATH，不替换游戏运行时，
+不覆盖原 Steam 安装，不导入整个提取的游戏工程到公共仓库。
 
-## Ordinary-save-only backup policy
+## 3. 工具准备不是游戏级验收
 
-Preserve the two ordinary-save locations separately in an external snapshot.
-Do not merge them or assume the Steam-side copy matches the AppData copy.
+本轮已准备官方 MegaDot `4.5.1-m.14` C# Windows x64 便携编辑器作为兼容探针候选，
+而不是随意下载最新版或不含 C# 的标准版；实际资源兼容性尚待探针。
+编辑器、导出模板、原生扩展和音画制作工具分别判断必要性。
 
-| Source | Ordinary content to preserve |
+完整包大小和 SHA-256 已匹配官方资料，实际来源及公开版本事实见技术评估。
+候选目录为 `<workspace>\Godot\megadot-4.5.1-m.14-win64-csharp`。
+在可执行文件旁预先配置 `_sc_` 后，仅运行无项目的 console
+`--headless --version`，退出码 0，输出 `4.5.1.m.14.mono.custom_build`。
+查询后没有生成 `editor_data`；没有启动编辑器 UI/项目或游戏。
+
+后续准备仍须记录官方来源、版本、文件校验和实际位置；版本查询只证明工具能响应，
+不能代替自身资源导入、PCK 导出或游戏装载的后续探针。
+本批没有验证完整编辑器设置/缓存、自包含数据行为或外部 .NET/NuGet/SDK 缓存边界，
+不能笼统称为零外部写入，更不能代替玩家数据和云端隔离。
+
+## 4. 现有普通存档备份
+
+| 来源 | 备份范围 |
 | --- | --- |
-| `%APPDATA%\SlayTheSpire2\steam\<account>` | Ordinary `profileN` directories, account-level `profile.save` and `settings.save`, and their `.backup` variants |
-| `%APPDATA%\SlayTheSpire2\default\<account>` | Ordinary settings files and their `.backup` variants, when present |
-| `<Steam>\userdata\<account>\2868840\remote` | Ordinary `profileN` directories, root `profile.save` and `settings.save`, and their `.backup` variants |
+| `%APPDATA%\SlayTheSpire2\steam\<account>` | 普通 `profileN`、历史和现有备份，账户级 `profile.save` / `settings.save` 及其 `.backup` 变体 |
+| `%APPDATA%\SlayTheSpire2\default\<account>` | 实际存在的普通设置及备份 |
+| `<Steam>\userdata\<account>\2868840\remote` | 普通 `profileN` 和普通账户级存档文件 |
 
-The first two rows belong to the AppData source group; the third is the
-Steam-side source group. Preserve source-relative paths within each group so
-identically named files do not overwrite one another.
+两类来源分别保存，不合并同名文件。排除 `modded`、`mod_data`、
+MOD 专属设置/遥测、日志、运行缓存和 `remotecache.vdf`。
+校验清单、原路径、账户信息和所有真实备份只保留在本地 `backup`。
 
-Exclude `modded`, `mod_data`, MOD configuration and telemetry, logs, runtime
-caches, and `remotecache.vdf`. Do not broaden an ordinary-save snapshot into an
-entire account-directory or Steam-userdata copy.
+没有恢复存档或修改 Steam 云同步。后续本 MOD 的自建隔离测试数据
+与这些真实普通存档、其他 MOD 的真实存档均须区分。
 
-Keep snapshot identifiers, source-path manifests, hashes, actual account-folder
-identifiers, and all backed-up data under the external backup directory, never
-in Git. Verify future snapshots against their included source files while those
-files are stable, and retain both source groups rather than selecting one as
-authoritative without evidence. No restoration or Steam Cloud changes are part
-of this repository initialization.
+## 5. 首次游戏级调试前的硬门
 
-## Save isolation before future debugging
+复制游戏不会自动复制或隔离用户数据。`UserDataPathProvider.IsRunningModded`
+表明本版本有 MOD 分区，但不能证明其设置、云端和真实 MOD 档均不受影响。
 
-**A separate executable directory does not isolate game saves.** A copied game
-may still access the same AppData profiles, Steam-side data, and cloud-associated
-state as another installation.
+应先检查本版本保存路径与本地/云后端构造行为，选择可靠的测试隔离方案，
+覆盖进度、当前局、历史、设置和云端行为。未获证实的通用 Godot 参数
+不能作为安全承诺，备用 profile 也不能替代隔离。
 
-Before future debugging or launch work uses a live profile, establish and verify
-a save-isolation mechanism appropriate to the game version. Determine the actual
-read/write destinations and demonstrate that an isolated disposable profile
-cannot write to the ordinary live profiles. Do not assume isolation from an
-executable path, a backup snapshot, an unverified launch option, or a MOD folder.
-Do not use a live profile while isolation is unproven.
+若无法证明边界，停止启动测试并登记阻塞；不先用真实账号试运行。
+如方案需要系统账户、虚拟环境或云设置变更，应单独获得确认。
+本次文档和工具准备不执行这些变更，也不启动游戏。
 
-This starter provides no isolation implementation and makes no claim of a tested
-launch or runtime integration. It does not launch the game, restore saves, or
-alter Steam Cloud settings.
+## 6. 发布前的双重边界
 
-## Rules before any publication
+一方面审查 Git 跟踪文件及待推送历史；另一方面审查 DLL/PCK/压缩包实际内容。
+忽略规则既不能移除历史文件，也不能检查压缩包内部，更不能代替授权判断。
 
-Publish only original or explicitly authorized MOD source, source assets, and
-related project documentation. Images and audio are not blanket-ignored because
-authorized MOD source assets are valid future contributions.
-
-Never stage or publish the game distribution; DLL, EXE, or PCK files; local
-reference assemblies; extracted or decompiled game code or assets; save data;
-backups or their manifests; actual account-folder identifiers; secrets; or
-machine-local configuration and metadata. Do not hide these payloads in
-archives or Git history. Do not force-add ignored files.
-
-Review the complete staged diff, tracked paths, and history being pushed before
-publication. Ignore rules protect only untracked paths; removing a file from the
-latest tree does not remove it from prior commits. If prohibited content is
-found, stop publication and resolve it explicitly rather than pushing it or
-overwriting an existing remote.
-
-No project license is selected in this starter. Public visibility does not
-license third-party assets or grant rights to game code. Establish authorization
-and any applicable attribution or license requirements before adding future
-source or assets.
+只发布自身或明确授权的内容，不上传真实日志、存档、账户信息、工具安装包、
+游戏引用、提取或反编译输出。第三方资源和库的许可证/署名要求另行记录。
