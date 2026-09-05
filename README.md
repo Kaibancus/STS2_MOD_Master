@@ -35,6 +35,35 @@
 未来启动游戏前必须通过数据与云端行为隔离门。
 详见 [本地开发边界](docs/local-development.md)。
 
+## 独立离线开发入口
+
+在仓库根目录先预检，再显式启动；日常使用不需要 Windows Sandbox：
+
+```powershell
+pwsh -NoProfile -File .\tools\Start-OfflineDev.ps1
+pwsh -NoProfile -File .\tools\Start-OfflineDev.ps1 -Launch
+```
+
+入口固定使用本版本的 `--force-steam=off`，在创建子进程前设置其专用
+`APPDATA`、`LOCALAPPDATA`、`TEMP` 和 `TMP`，不修改系统/父进程环境。
+默认新建的独立档位位于：
+
+```text
+<workspace>\offline-data\v0.111.0-41cef1ea\main\roaming\SlayTheSpire2\default\1\
+```
+
+`-Slot <name>` 可选择另一组独立开发数据。备份不作为运行目录，
+不会在每次启动时复制真实存档；本批没有导入任何玩家备份。
+如需继承进度，应另行明确一个普通备份 profile 和全新 slot，再执行一次性复制，
+而非合并账户、覆盖既有档位或反向恢复源文件。
+
+入口拒绝未知发行文件、额外 MOD/`override.cfg`、路径链接、数据硬链接、
+并发游戏及未识别数据根。游戏更新或未来加入 MOD 后需重新核准，不能直接共用旧版本可写档。
+保护范围是**已核对的可信发行版本、固定入口及独立存档路径**：
+不是宿主网络防火墙，不承诺阻止恶意 MOD 任意访问文件。
+**直接双击游戏 EXE 或绕过入口不受此保护。**
+运行验收与尚未覆盖项见本地开发边界和工程日志。
+
 ## 公开仓库规则
 
 只提交自身或明确授权的 MOD 源码、源资产和相关文档。

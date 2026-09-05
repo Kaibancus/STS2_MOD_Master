@@ -48,6 +48,9 @@
 | S20 | [ILSpy v9.1](https://github.com/icsharpcode/ILSpy/releases/tag/v9.1) / [v11.0](https://github.com/icsharpcode/ILSpy/releases/tag/v11.0) / [CLI 版本索引](https://api.nuget.org/v3-flatcontainer/ilspycmd/index.json) | v11 涉及 .NET10；v9.1 的 CLI/runtime 能力另查，不随意把新参数套在旧版上；只认官方来源。 |
 | S21 | [Steamworks Cloud](https://partner.steamgames.com/doc/features/cloud) | 云同步边界及按游戏设置；禁用云也不等于本地文件隔离。 |
 | S22 | [Mega Crit MOD uploader](https://github.com/megacrit/sts2-mod-uploader/tree/d7b7e6b16c413d5a124f474f9e5104ef01f76ab1) | 后续 Workshop 发布参考，本批不安装或执行。 |
+| S23 | [Godot 4.5.1 OS 路径](https://github.com/godotengine/godot/blob/4.5.1-stable/core/os/os.cpp) / [Windows 实现](https://github.com/godotengine/godot/blob/4.5.1-stable/platform/windows/os_windows.cpp) | 自定义用户目录、APPDATA、LOCALAPPDATA 的公开对照；已另行核对实际游戏 EXE，不仅依赖 stock 实现。 |
+| S24 | [Microsoft Windows Sandbox 配置](https://learn.microsoft.com/en-us/windows/security/application-security/application-isolation/windows-sandbox/windows-sandbox-configure-using-wsb-file) | 一次性隔离验证的禁网、只读映射和 ProtectedClient；不是日常原生离线入口的必需组件。 |
+| S25 | [Iced 1.21.0 官方 NuGet 包](https://api.nuget.org/v3-flatcontainer/iced/1.21.0/iced.1.21.0.nupkg) | 缺少现成原生分析工具时的固定版本本地工具；包与派生输出不进入仓库，不是 MOD 运行依赖。 |
 
 ## 本地证据
 
@@ -59,6 +62,8 @@
 | L04 | `sts2.xml:79056-80350, 88468-88820, 91229-91267` | 命令、事件和玩法/表现边界。 |
 | L05 | `sts2.xml:87084-87276, 87489-87525, 99248-99346` | 本地化动态变量和随机流。 |
 | L06 | `sts2.xml:102340-102426, 102477-102676` 及 UserDataPathProvider 元数据 | 保存入口、分区与云风险；不证明开发隔离。 |
+| L07 | 本版本局部 IL：`CommandLineHelper` `0x06004D0C`、`NGame.InitializePlatform` 状态机 `0x0600B5A9`、`SaveManager.ConstructDefault` `0x06000732`、`NullPlatformUtilStrategy` `0x060010B4` | force-steam=off 的实际分支、云后端构造条件、默认离线 ID=1、存储及早期迁移路径。只公开结论，不公开 IL。 |
+| L08 | 实际 EXE 的 Windows config/data/user-dir getter RVA `0x00481730`、`0x004818B0`、`0x00482170` 与必要项目配置；受控存储实验 | vtable 连接与 APPDATA/custom_user_dir_name=SlayTheSpire2；以实际文件写入佐证，原始配置/反汇编/日志仅本地保存。 |
 
 本次 `sts2.dll` SHA-256：
 `0861BFA1DF347538D932F22D580E75420F08082792EB914E53B4882764ACDBE9`。
@@ -68,3 +73,10 @@
 
 本地 XML 行号与结论绑定这些指纹。游戏更新后重新采集，
 不上传 XML、程序集、完整 API dump、反编译输出或真实玩家数据来“补齐引用”。
+
+S-01 实际 EXE SHA-256：
+`8602C26BFFD2937E3841835FD8360EF8E974624A543E05977229FD3D062BE231`。
+实际 PCK SHA-256：
+`C60F672EE7804E6AEFA1E19A582FA1C80B126A7B0EEF4D084D3ABF110DF2EAB7`。
+入口另外核对全部发行文件的稳定摘要，既检查内容也检查增删；
+任何基线更新都必须重新核对，不能仅以显示版本字符串放行。

@@ -3,6 +3,10 @@
 [Gg]ame/
 [Gg]ames/
 /Godot/
+/dev-data/
+/dev-launch/
+/offline-data/
+*.wsb
 data_sts2_*/
 steamapps/
 steam_appid.txt

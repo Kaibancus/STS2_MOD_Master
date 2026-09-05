@@ -21,6 +21,11 @@ GodotSharp 版本 `4.5.1`，随附 Harmony `2.4.2`。
       <snapshot>\
   Godot\
     <pinned-editor-version>\
+  offline-data\
+    v0.111.0-41cef1ea\
+      <slot>\
+  dev-data\     私有 Sandbox 探针数据，不是日常离线档
+  dev-launch\   私有探针配置，不进入 Git
 ```
 
 只有 `mod` 是 Git 根。Godot 的用户指定安装位置是工作区的 `Godot` 子目录，
@@ -71,13 +76,54 @@ MOD 专属设置/遥测、日志、运行缓存和 `remotecache.vdf`。
 复制游戏不会自动复制或隔离用户数据。`UserDataPathProvider.IsRunningModded`
 表明本版本有 MOD 分区，但不能证明其设置、云端和真实 MOD 档均不受影响。
 
-应先检查本版本保存路径与本地/云后端构造行为，选择可靠的测试隔离方案，
-覆盖进度、当前局、历史、设置和云端行为。未获证实的通用 Godot 参数
-不能作为安全承诺，备用 profile 也不能替代隔离。
+本批选择轻量的宿主原生离线入口 `tools\Start-OfflineDev.ps1`，而不是要求日常使用 Sandbox。
+实际解码的 `--force-steam=off` 使 `NGame.InitializePlatform` 跳过 Steam 初始化；
+`SaveManager.ConstructDefault` 只有在 `SteamInitializer.Initialized` 为真时才构造
+`SteamRemoteSaveStore` / `CloudSaveStore`。这是内置分支，不修改认证代码或伪装 Steam 身份。
 
-若无法证明边界，停止启动测试并登记阻塞；不先用真实账号试运行。
-如方案需要系统账户、虚拟环境或云设置变更，应单独获得确认。
-本次文档和工具准备不执行这些变更，也不启动游戏。
+游戏项目启用自定义用户目录 `SlayTheSpire2`；本版本 Windows 原生路径通过
+`get_data_path -> get_config_path -> APPDATA` 解析 `user://`。
+因此入口用 `ProcessStartInfo` 在创建进程前指定专用环境，而不是在游戏开始后改路径。
+启动脚本不修改 `USERPROFILE`、注册表、全局环境或 Steam 设置，
+也不写入原安装和源存档；这不等于对所有驱动/第三方工具的环境副作用作保证。
+
+| 内容 | 专用 slot 下的位置 |
+| --- | --- |
+| 游戏 `user://`、日志和相关 Sentry 本地数据 | `roaming\SlayTheSpire2` |
+| 本版本离线账号设置 | `roaming\SlayTheSpire2\default\1\settings.save` |
+| profile 选择记录 | 同账号根下的 `[modded\]profile.save` |
+| 偏好、进度、当前局和历史 | 同账号根下的 `[modded\]profileN\saves` |
+| 本地缓存 | `local`（子进程 `LOCALAPPDATA`） |
+| 临时文件 | `temp`（子进程 `TEMP` / `TMP`） |
+
+默认 slot 为 `<workspace>\offline-data\v0.111.0-41cef1ea\main`。
+编号 `1` 是本版本无额外身份参数时的实际实验结果，不是跨版本通用约定。
+启动前的账号/profile 迁移也使用重定向后的 `user://`；
+独立空根没有真实旧数据可迁移。当前不自动从普通备份或其他 MOD 数据播种。
+
+宿主入口每次核对全部 220 个发行文件的路径、长度及内容指纹，拒绝新增/缺失/变更文件，
+包括 `override.cfg` 或额外 MOD；游戏升级不能绕过该检查。
+数据按版本和 slot 分开，已有根须有自身归属标记；路径重解析点、数据硬链接、
+运行时注入环境及并发游戏/入口均会阻断。预检不创建数据，也不启动进程。
+这些约束不防御启动时恶意宿主程序同时修改文件，也不为未来任意 MOD 提供 OS 沙箱保证。
+
+已完成两次一次性 Sandbox 内的真实游戏实验：固定
+`--headless --force-steam=off` 与同一专用环境，实际写入设置/偏好/进度，
+再次启动到达主菜单且三份存档内容保持一致；客体默认 AppData 未出现游戏目录。
+原存档/Steam 缓存/原安装均由独立检查确认未改变。
+随后经确认在宿主使用同一固定参数和子进程环境实际到达主菜单并写入专用档，
+原源文件再次独立复核不变；S-02 已按当前可信发行版本范围完成。
+这不是 `--version` 或模拟文件测试，也不是全部玩法、MOD 或图形表现的验收。
+
+日常命令见根 README。维护者可用 `-ProbeSeconds 60 -Launch` 进行有界无界面验证，
+只终止此入口创建的 PID；其强制停止退出码不能冒充自然退出成功。
+自身脚本检查使用 `pwsh -NoProfile -File .\tools\tests\Test-DevLaunch.ps1`。
+`tools\Start-DevSandbox.ps1` 仅用于显式边界/存储实验，不是日常默认入口。
+
+“离线”在这里表示 **Steam 后端关闭且存档根独立**，不表示宿主整个进程被断网。
+Sentry 是独立机制；未增加防火墙规则或全局网络限制。
+直接运行 EXE、修改入口参数/源码、加入未核准 MOD 或共享未核准版本档位不在保证范围内。
+需要系统账户、权限或云设置变更的其他方案仍须另行确认。
 
 ## 6. 发布前的双重边界
 
