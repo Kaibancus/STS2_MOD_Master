@@ -1,0 +1,12 @@
+{
+  "id": "sts2_catalog_reader",
+  "name": "STS2 factual catalog reader",
+  "author": "Kaibancus",
+  "description": "Read-only canonical factual catalog in an approved disposable environment.",
+  "version": "0.1.0",
+  "has_pck": false,
+  "has_dll": true,
+  "dependencies": [],
+  "affects_gameplay": false,
+  "min_game_version": "0.111.0"
+}

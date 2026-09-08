@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>杀戮尖塔2 · 五角色卡牌与专属遗物事实图谱</title>
+<style>
+:root{--ink:#172c36;--muted:#566b73;--paper:#f5f4ef;--card:#fff;--line:#d8e0df;--accent:#14695e;--gold:#8b5b16}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.65 system-ui,"Microsoft YaHei",sans-serif}a{color:var(--accent)}header{background:#172c36;color:#fff;padding:3rem max(5vw,1rem)}header p{max-width:850px;color:#d9e8e7}h1{font-size:clamp(1.8rem,4vw,3rem);line-height:1.2;margin:.5rem 0}h2{font-size:1.6rem;margin:0 0 1rem}h3{font-size:1.1rem}main{max-width:1500px;margin:auto;padding:1.5rem clamp(.7rem,3vw,2rem)}section{margin:0 0 2.5rem}.eyebrow{font-size:.85rem;letter-spacing:.15em;color:#94d6c9}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1rem}.panel{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.2rem;min-width:0}.metric strong{display:block;font-size:2rem}.muted,.note{color:var(--muted);font-size:.9rem}.tag{display:inline-block;font-size:.75rem;padding:.1rem .5rem;background:#e5f1ed;border-radius:20px;color:var(--accent);margin:.15rem}.small{font-size:.8rem}.statline{display:flex;justify-content:space-between;gap:1rem;border-bottom:1px solid #edf0ef;padding:.3rem 0}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.8rem;padding:1rem;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:.7rem}label{font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:.25rem}input,select,button{font:inherit;border:1px solid #9dafb1;border-radius:6px;padding:.5rem;background:white;color:var(--ink);min-width:0}button{cursor:pointer}button:hover{border-color:var(--accent);background:#edf5f1}button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #ca941d;outline-offset:3px}button.primary{background:var(--accent);color:white}.table-wrap{max-width:100%;overflow:auto;border:1px solid var(--line);border-radius:8px;background:#fff}table{border-collapse:collapse;width:100%;font-size:.87rem}th,td{padding:.65rem .7rem;text-align:left;border-bottom:1px solid #e7ecea;vertical-align:top}th{background:#eaf0ed;white-space:nowrap}th button{border:0;background:transparent;padding:0;font-weight:700}tbody tr:nth-child(even){background:#fafbf9}tbody tr:hover{background:#edf5f1}td.code{font: .76rem/1.5 ui-monospace,Consolas,monospace;overflow-wrap:anywhere;max-width:260px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:.8rem;margin:1rem 0}.barrow{display:grid;grid-template-columns:100px 1fr 35px;gap:.5rem;align-items:center;font-size:.8rem}.bar{height:9px;background:#e9eeeb;border-radius:20px;overflow:hidden}.bar span{display:block;height:100%;background:var(--accent)}.result{font-weight:600}.pools{font-size:.76rem;color:var(--muted);overflow-wrap:anywhere}.tabs{display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem}.tabs a{color:#d7eee5;text-decoration:none;border-bottom:1px solid #6c9d93}details{margin:1rem 0}summary{cursor:pointer;font-weight:600}li{margin:.5rem 0}.warning{border-left:4px solid #b98624;padding:.5rem 1rem;background:#fff8e8}footer{border-top:1px solid var(--line);padding:1rem;font-size:.8rem;color:var(--muted)}.nowrap{white-space:nowrap}.empty{text-align:center;padding:2rem;color:var(--muted)}dl{margin:0}dt{color:var(--muted);font-size:.8rem}dd{margin:0 0 .7rem;overflow-wrap:anywhere}.print-button{margin-left:auto}
+@media(max-width:700px){header{padding:2rem 1rem}.controls{grid-template-columns:1fr 1fr}.controls label:first-child{grid-column:1/-1}th,td{padding:.5rem}main{padding:1rem .65rem}.panel{padding:1rem}}
+@media print{@page{size:A4 landscape;margin:12mm}body{background:white;font-size:10pt}header{background:white;color:black;padding:0 0 1rem}header p,.eyebrow{color:#333}.tabs,.controls,.print-button,button{display:none!important}th button{display:inline!important;color:black}.table-wrap{overflow:visible;border:0}table{font-size:8pt}th,td{padding:3pt;overflow-wrap:anywhere;white-space:normal}thead{display:table-header-group}tr,.panel{break-inside:avoid}section{break-before:auto;margin-bottom:15pt}.grid{grid-template-columns:repeat(3,1fr)}details>div{display:block!important}.stats{grid-template-columns:repeat(4,1fr)}h2{font-size:14pt}}
+</style>
+</head>
+<body>
+<header>
+<div class="eyebrow">OFFLINE FACTUAL CATALOG · 安装版本快照</div>
+<h1>五名角色 · 全卡牌 · 专属遗物</h1>
+<p id="version"></p>
+<p>短名称与模型数值的完整事实目录，不含游戏美术、卡牌效果段落或玩家存档。角色直接池与相关衍生牌、常规专属遗物与事件精炼形态分别计数。</p>
+<nav class="tabs" aria-label="报告导航"><a href="#characters">角色基础</a><a href="#cards">完整卡牌</a><a href="#relics">遗物目录</a><a href="#audit">口径与库存对账</a><button id="print" class="print-button">打印当前筛选</button></nav>
+</header>
+<main>
+<noscript><p class="warning">需要允许本地 JavaScript 来显示内嵌的完整事实数据。页面没有网络请求；也可直接阅读同目录 JSON 数据集。</p></noscript>
+<section><div id="overview" class="grid"></div></section>
+<section id="characters"><h2>01 / 五角色基础档案</h2><p class="note">未升级、基础难度的角色模板值；不叠加进度、进阶或初始遗物触发修正。初始星数、药水容量未独立验证，以“未核实”显示，不用 0 代填。</p><div id="character-grid" class="grid"></div></section>
+<section id="cards"><h2>02 / 完整卡牌目录</h2>
+<div class="controls">
+<label>搜索短名称 / 英文 / ID<input id="card-search" type="search" placeholder="例如：打击、Shiv、CARD.SOUL"></label>
+<label>角色归属<select id="card-character"></select></label><label>类别<select id="card-type"></select></label>
+<label>稀有度<select id="card-rarity"></select></label><label>能量费用<select id="card-cost"></select></label>
+<label>获取类别<select id="card-role"></select></label><label>归属依据<select id="card-basis"></select></label><button id="card-reset">重置卡牌筛选</button>
+</div>
+<p id="card-count" class="result" aria-live="polite"></p><p id="card-mean" class="note"></p>
+<div id="card-stats" class="stats"></div>
+<details><summary>交叉统计：类别 × 稀有度、能量费用 × 稀有度（当前筛选）</summary><div id="cross-tables"></div></details>
+<div class="table-wrap"><table id="card-table"><caption class="small">基础未升级卡牌；点击表头排序。能量与星费分列，升级费用未评估。</caption><thead><tr>
+<th scope="col"><button data-sort="nameZh">名称 ↕</button></th><th scope="col"><button data-sort="model">英文 / 稳定 ID ↕</button></th>
+<th scope="col"><button data-sort="owners">归属 / 原生池 ↕</button></th><th scope="col"><button data-sort="type">类别 ↕</button></th>
+<th scope="col"><button data-sort="rarity">稀有度 ↕</button></th><th scope="col"><button data-sort="energy">能量 ↕</button></th>
+<th scope="col"><button data-sort="stars">星费 ↕</button></th><th scope="col"><button data-sort="target">目标 ↕</button></th>
+<th scope="col"><button data-sort="role">来源 / 图鉴 ↕</button></th><th scope="col">费用与条件备注</th>
+</tr></thead><tbody></tbody></table></div>
+</section>
+<section id="relics"><h2>03 / 专属遗物与共享附录</h2>
+<p class="note">每角色 8 个直接专属池成员 + 1 个原生精炼字典证实的初始遗物升级形态。事件形态保留 EventRelicPool，不计为普通奖励。默认展示完整遗物附录，角色筛选显示其归属遗物。</p>
+<div class="controls">
+<label>搜索遗物短名称 / 英文 / ID<input id="relic-search" type="search" placeholder="例如：燃烧之血、Black Blood"></label>
+<label>角色归属<select id="relic-character"></select></label><label>稀有度<select id="relic-rarity"></select></label>
+<label>来源类别<select id="relic-role"></select></label><label>归属依据<select id="relic-basis"></select></label><button id="relic-reset">重置遗物筛选</button>
+</div><p id="relic-count" class="result" aria-live="polite"></p><div id="relic-stats" class="stats"></div>
+<div class="table-wrap"><table id="relic-table"><caption class="small">每个唯一遗物一行；多个原生池成员关系显示在同一行。</caption><thead><tr>
+<th scope="col"><button data-sort="nameZh">名称 ↕</button></th><th scope="col"><button data-sort="model">英文 / ID ↕</button></th>
+<th scope="col"><button data-sort="owners">角色 / 归属依据 ↕</button></th><th scope="col"><button data-sort="rarity">稀有度 ↕</button></th>
+<th scope="col"><button data-sort="role">来源类别 ↕</button></th><th scope="col">原生池 / 替换关系</th>
+</tr></thead><tbody></tbody></table></div>
+</section>
+<section id="audit"><h2>04 / 统计口径与完整性对账</h2>
+<div class="grid"><div class="panel"><h3>原始库存 → 报告范围</h3><div id="reconciliation"></div></div><div class="panel"><h3>提取与版本证据</h3><dl id="provenance"></dl></div></div>
+<h3>定义</h3><ol id="definitions"></ol><h3>明确限制与未求值字段</h3><ul id="limitations"></ul>
+<h3>字段级读取问题</h3><div id="issues" class="table-wrap"></div>
+<h3>排除 / 不执行项清单</h3><p class="note">保留失败和排除原因，不将废弃占位、测试模型或辅助类伪装成可用卡牌/遗物。</p><div id="exclusions" class="table-wrap"></div>
+</section>
+</main><footer>完全离线 · 无外部依赖 · 报告中的统计统一由内嵌事实数据计算。公开短名称不构成游戏素材再分发授权。</footer>
+<!--CATALOG_DATA-->
+<script>
+'use strict';
+const D=JSON.parse(document.getElementById('catalog-data').textContent);
+const $=id=>document.getElementById(id), charMap=new Map(D.characters.map(c=>[c.id,c])), cardMap=new Map(D.cards.map(c=>[c.id,c])), relicMap=new Map(D.relics.map(r=>[r.id,r]));
+const labels={Attack:'攻击',Skill:'技能',Power:'能力',Status:'状态',Curse:'诅咒',Quest:'任务',Basic:'基础',Common:'普通',Uncommon:'罕见',Rare:'稀有',Ancient:'远古',Event:'事件',Token:'衍生',Starter:'初始',Shop:'商店',None:'无等级',Self:'自身',AnyEnemy:'任意敌人',AllEnemies:'所有敌人',NoneTarget:'无',AnyAlly:'任意友方',AllAllies:'所有友方',RandomEnemy:'随机敌人',starter:'初始牌/遗物',reward:'常规池分类',token:'衍生/生成',event:'事件/远古',quest:'任务',curse:'诅咒',status:'状态',special:'特殊/替代',unassigned:'未归类'};
+const label=x=>labels[x]??String(x??'未核实'), fmt=x=>x===null||x===undefined?'未核实':String(x);
+function el(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
+function add(parent,...nodes){for(const n of nodes)parent.append(n);return parent;}
+function cost(c){return c.kind==='numeric'?String(c.value):({x:'X',none:'—',unplayable:'不可打出',unknown:'未核实'}[c.kind]??c.kind);}
+function costKey(c){return c.kind==='numeric'?String(c.value):c.kind;}
+function costLabel(k){return ({x:'X费用',none:'无常规能量费',unplayable:'不可打出',unknown:'未核实'})[k]??`${k}费`;}
+function ownerNames(row){return row.owners.length?row.owners.map(id=>charMap.get(id)?.nameZh??id).join(' / '):'共享/非角色专属';}
+function basis(row){return {'character-pool':'直接角色池','related-generation':'角色相关生成牌（仍属Token池）','starter-refinement':'事件初始遗物精炼','shared-pool':'共享池'}[row.ownershipBasis]??row.ownershipBasis;}
+function groups(rows,fn){const m=new Map();for(const r of rows){const k=String(fn(r));m.set(k,(m.get(k)??0)+1);}return [...m].sort((a,b)=>a[0].localeCompare(b[0],'zh-CN',{numeric:true}));}
+function options(id,values,all='全部'){const s=$(id);s.replaceChildren(el('option',all));s.firstChild.value='';for(const [v,t]of values){const o=el('option',t);o.value=v;s.append(o);}}
+const characters=D.characters.map(c=>[c.id,c.nameZh]);
+for(const kind of ['card','relic'])options(`${kind}-character`,[...characters,['shared','共享 / 无角色归属']]);
+options('card-type',groups(D.cards,r=>r.type).map(([v])=>[v,label(v)]));
+options('card-rarity',groups(D.cards,r=>r.rarity).map(([v])=>[v,label(v)]));
+options('card-cost',groups(D.cards,r=>costKey(r.energy)).map(([v])=>[v,costLabel(v)]));
+options('card-role',groups(D.cards,r=>r.role).map(([v])=>[v,label(v)]));
+options('relic-rarity',groups(D.relics,r=>r.rarity).map(([v])=>[v,label(v)]));
+options('relic-role',groups(D.relics,r=>r.role).map(([v])=>[v,label(v)]));
+for(const [kind,rows]of [['card',D.cards],['relic',D.relics]])options(`${kind}-basis`,groups(rows,r=>r.ownershipBasis).map(([v])=>[v,basis({ownershipBasis:v})]));
+function metric(value,text){return add(el('div',undefined,'panel metric'),el('strong',String(value)),el('span',text));}
+add($('overview'),metric(D.characters.length,'原生可玩角色'),metric(D.cards.length,'唯一可用卡牌'),metric(`${D.cards.filter(r=>r.ownershipBasis==='character-pool').length} + ${D.cards.filter(r=>r.ownershipBasis==='related-generation').length}`,'直接角色池 + 相关衍生（不新增全局数量）'),metric(D.relics.length,'唯一可用遗物（含共享附录）'),metric(D.relics.filter(r=>r.owners.length).length,'角色归属遗物（每角色8直接池+1事件精炼）'));
+$('version').textContent=`安装版本 ${D.metadata.gameVersion} / ${D.metadata.gameCommit} · 提取时间 ${D.metadata.capturedUtc} · 不是“全球最新版本”声明`;
+for(const c of D.characters){
+ const panel=el('article',undefined,'panel');add(panel,el('h3',c.nameZh),el('div',c.nameEn,'muted'));
+ for(const [key,value]of [['生命 / 最大生命',`${c.startingHp} / ${c.maxHp}`],['初始金币',c.startingGold],['基础能量上限',c.maxEnergy],['基础充能球槽',c.orbSlots===0?'不适用（0槽）':fmt(c.orbSlots)],['初始星数 / 药水容量',`${fmt(c.startingStars)} / ${fmt(c.potionSlots)}`]])add(panel,add(el('div',undefined,'statline'),el('span',key),el('strong',String(value))));
+ const ownCards=D.cards.filter(r=>r.owners.includes(c.id)), direct=ownCards.filter(r=>r.ownershipBasis==='character-pool'), gen=ownCards.length-direct.length, ownRelics=D.relics.filter(r=>r.owners.includes(c.id)), rp=ownRelics.filter(r=>r.ownershipBasis==='character-pool').length;
+ add(panel,el('p',`${direct.length} 直接池卡 + ${gen} 相关衍生牌`,'tag'),el('p',`${rp} 直接专属遗物 + ${ownRelics.length-rp} 事件精炼`,'tag'));
+ add(panel,el('h4',`初始牌组 · ${c.startingDeck.reduce((n,r)=>n+r.count,0)} 张`),el('p',c.startingDeck.map(r=>`${cardMap.get(r.id)?.nameZh??r.id} ×${r.count}`).join(' · '),'small'),el('h4','初始遗物'),el('p',c.startingRelics.map(id=>relicMap.get(id)?.nameZh??id).join(' · '),'small'));$('character-grid').append(panel);
+}
+function bars(title,rows,key,labeler=label){const box=el('div',undefined,'panel');box.append(el('h3',title));const g=groups(rows,key),max=Math.max(1,...g.map(r=>r[1]));for(const[k,n]of g){const track=el('div',undefined,'bar'),fill=el('span');fill.style.width=`${n/max*100}%`;track.append(fill);box.append(add(el('div',undefined,'barrow'),el('span',labeler(k)),track,el('strong',String(n))));}if(!g.length)box.append(el('p','无结果','muted'));return box;}
+function cross(rows,key,name){const rarities=groups(rows,r=>r.rarity).map(r=>r[0]),categories=groups(rows,key).map(r=>r[0]);const wrap=el('div',undefined,'table-wrap'),t=el('table');t.append(el('caption',name));const h=el('tr');h.append(el('th',name));for(const r of rarities)h.append(el('th',label(r)));h.append(el('th','合计'));t.append(add(el('thead'),h));const body=el('tbody');for(const k of categories){const tr=el('tr');tr.append(el('th',name.startsWith('能量')?costLabel(k):label(k)));let sum=0;for(const r of rarities){const n=rows.filter(x=>String(key(x))===k&&x.rarity===r).length;sum+=n;tr.append(el('td',String(n)));}tr.append(el('td',String(sum)));body.append(tr);}t.append(body);wrap.append(t);return wrap;}
+let cardSort={key:'nameZh',asc:true},relicSort={key:'nameZh',asc:true};
+function sorted(rows,sort){const value=r=>sort.key==='energy'||sort.key==='stars'?costKey(r[sort.key]):sort.key==='owners'?ownerNames(r):String(r[sort.key]??'');return [...rows].sort((a,b)=>value(a).localeCompare(value(b),'zh-CN',{numeric:true})*(sort.asc?1:-1));}
+function ownerFilter(r,id){return !id||id==='shared'&&!r.owners.length||r.owners.includes(id);}
+function matching(r,q){return !q||[r.nameZh,r.nameEn,r.id,r.model].some(x=>String(x).toLocaleLowerCase().includes(q));}
+function renderCards(){
+ const q=$('card-search').value.trim().toLocaleLowerCase(), ch=$('card-character').value,t=$('card-type').value,ra=$('card-rarity').value,co=$('card-cost').value,ro=$('card-role').value,bs=$('card-basis').value;
+ const rows=D.cards.filter(r=>matching(r,q)&&ownerFilter(r,ch)&&(!t||r.type===t)&&(!ra||r.rarity===ra)&&(!co||costKey(r.energy)===co)&&(!ro||r.role===ro)&&(!bs||r.ownershipBasis===bs));
+ $('card-count').textContent=`显示 ${rows.length} / ${D.cards.length} 张唯一卡牌`;
+ const numeric=rows.filter(r=>r.energy.kind==='numeric'),mean=numeric.length?(numeric.reduce((n,r)=>n+r.energy.value,0)/numeric.length).toFixed(3):'不适用';
+ $('card-mean').textContent=`固定数字能量费均值 ${mean}；分母 ${numeric.length}，排除 ${rows.length-numeric.length} 张 X / 不可打出 / 无常规能量费 / 未核实。星费另列；筛选不改变原生池归属。`;
+ $('card-stats').replaceChildren(bars('类别',rows,r=>r.type),bars('稀有度',rows,r=>r.rarity),bars('能量费用',rows,r=>costKey(r.energy),costLabel),bars('星费（独立资源）',rows,r=>costKey(r.stars),k=>k==='none'?'无星费':k==='x'?'X星':k==='unknown'?'未核实':`${k}星`));
+ $('cross-tables').replaceChildren(cross(rows,r=>r.type,'类别 × 稀有度'),cross(rows,r=>costKey(r.energy),'能量费用 × 稀有度'));
+ const body=$('card-table').tBodies[0],frag=document.createDocumentFragment();
+ for(const r of sorted(rows,cardSort)){const tr=el('tr');const name=add(el('td'),el('strong',r.nameZh));const id=add(el('td',undefined,'code'),el('div',r.nameEn),el('div',r.id));const owner=add(el('td'),el('div',ownerNames(r)),el('div',basis(r),'pools'),el('div',r.memberships.map(x=>x.pool).join(' / '),'pools'));const role=add(el('td'),el('div',label(r.role)),el('div',`图鉴显示：${r.library===null?'未核实':r.library?'是':'否'}`,'small'));add(tr,name,id,owner,el('td',label(r.type)),el('td',label(r.rarity)),el('td',cost(r.energy),'nowrap'),el('td',cost(r.stars),'nowrap'),el('td',r.target==='None'?'无目标':label(r.target)),role,el('td',r.costNotes.join(' '),'small'));frag.append(tr);}
+ if(!rows.length){const td=el('td','没有符合条件的卡牌；可重置筛选。','empty');td.colSpan=10;frag.append(add(el('tr'),td));}body.replaceChildren(frag);return rows;
+}
+function renderRelics(){
+ const q=$('relic-search').value.trim().toLocaleLowerCase(),ch=$('relic-character').value,ra=$('relic-rarity').value,ro=$('relic-role').value,bs=$('relic-basis').value;
+ const rows=D.relics.filter(r=>matching(r,q)&&ownerFilter(r,ch)&&(!ra||r.rarity===ra)&&(!ro||r.role===ro)&&(!bs||r.ownershipBasis===bs));$('relic-count').textContent=`显示 ${rows.length} / ${D.relics.length} 个唯一遗物；当前 ${rows.reduce((n,r)=>n+r.memberships.length,0)} 条原生池成员关系`;
+ $('relic-stats').replaceChildren(bars('稀有度',rows,r=>r.rarity),bars('来源类别',rows,r=>r.role));
+ const frag=document.createDocumentFragment();for(const r of sorted(rows,relicSort)){const tr=el('tr');const where=add(el('td'),el('div',r.memberships.map(x=>x.pool).join(' / '),'pools'));if(r.replaces.length)where.append(el('div','精炼自：'+r.replaces.map(id=>`${relicMap.get(id)?.nameZh??id} (${id})`).join(' / '),'small'));add(tr,el('td',r.nameZh),add(el('td',undefined,'code'),el('div',r.nameEn),el('div',r.id)),add(el('td'),el('div',ownerNames(r)),el('div',basis(r),'pools')),el('td',label(r.rarity)),el('td',label(r.role)),where);frag.append(tr);}
+ if(!rows.length){const td=el('td','没有符合条件的遗物；可重置筛选。','empty');td.colSpan=6;frag.append(add(el('tr'),td));}$('relic-table').tBodies[0].replaceChildren(frag);return rows;
+}
+for(const kind of ['card','relic']){const render=kind==='card'?renderCards:renderRelics;for(const input of document.querySelectorAll(`#${kind}s .controls input,#${kind}s .controls select`))input.addEventListener('input',render);$(`${kind}-reset`).addEventListener('click',()=>{for(const input of document.querySelectorAll(`#${kind}s .controls input,#${kind}s .controls select`))input.value='';render();});for(const button of document.querySelectorAll(`#${kind}-table [data-sort]`)){button.addEventListener('click',()=>{const sort=kind==='card'?cardSort:relicSort;sort.asc=sort.key===button.dataset.sort?!sort.asc:true;sort.key=button.dataset.sort;for(const th of button.closest('tr').children)th.removeAttribute('aria-sort');button.parentElement.setAttribute('aria-sort',sort.asc?'ascending':'descending');render();});}}
+const cm=D.cards.reduce((n,r)=>n+r.memberships.length,0),rm=D.relics.reduce((n,r)=>n+r.memberships.length,0);
+for(const [k,v]of [['卡牌命名空间类型',D.metadata.inventoryCounts.Cards],['可用唯一卡 / 池成员',`${D.cards.length} / ${cm}`],['直接角色卡池成员',D.cards.filter(r=>r.ownershipBasis==='character-pool').length],['角色相关生成牌（不新增唯一数量）',D.cards.filter(r=>r.ownershipBasis==='related-generation').length],['遗物命名空间类型',D.metadata.inventoryCounts.Relics],['可用唯一遗物 / 池成员',`${D.relics.length} / ${rm}`],['排除清单条目（含池/角色/辅助类型）',D.exclusions.length],['字段级条件求值问题',D.issues.length]])$('reconciliation').append(add(el('div',undefined,'statline'),el('span',k),el('strong',String(v))));
+for(const [k,v]of [['版本',`${D.metadata.gameVersion} / ${D.metadata.gameCommit}`],['提取时间',D.metadata.capturedUtc],['方法',D.metadata.extractionMethod],...D.metadata.sources.map(s=>[s.label,s.fingerprint])])add($('provenance'),el('dt',k),el('dd',v));
+for(const text of D.metadata.definitions)$('definitions').append(el('li',text));for(const text of D.metadata.limitations)$('limitations').append(el('li',text));
+function auditTable(container,heads,rows){const t=el('table'),tr=el('tr');heads.forEach(h=>tr.append(el('th',h)));t.append(add(el('thead'),tr));const body=el('tbody');rows.forEach(row=>{const tr=el('tr');row.forEach(v=>tr.append(el('td',fmt(v))));body.append(tr);});t.append(body);container.append(t);}
+auditTable($('issues'),['模型','属性','问题'],D.issues.map(i=>[i.model,i.property,i.error]));auditTable($('exclusions'),['类别','模型 / ID','排除理由'],D.exclusions.map(e=>[e.kind,`${e.model}${e.id?' / '+e.id:''}`,e.reason]));
+$('print').addEventListener('click',()=>window.print());renderCards();renderRelics();
+window.catalogReport={data:D,renderCards,renderRelics};
+</script>
+</body></html>
